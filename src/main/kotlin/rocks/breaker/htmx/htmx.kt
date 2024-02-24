@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package rocks.breaker
+package rocks.breaker.htmx
 
 import kotlinx.html.HTMLTag
 

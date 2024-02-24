@@ -3,7 +3,7 @@ package rocks.breaker.cta
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.File
 
-data class Station(val id: Int, val stopName: String, val handicapAccessible: Boolean) {
+data class Station(val id: Int, val name: String, val handicapAccessible: Boolean) {
     companion object {
         fun readStations(): List<Station> {
             val stops = File("cta/stops.txt")
