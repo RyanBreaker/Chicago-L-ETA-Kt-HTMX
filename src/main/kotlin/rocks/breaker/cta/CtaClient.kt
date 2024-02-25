@@ -1,10 +1,10 @@
 package rocks.breaker.cta
 
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
@@ -29,13 +29,15 @@ class CtaClient {
     }
 
     suspend fun getEtas(stationId: String): List<Eta> {
-        val etas: String = client.get("ttarrivals.aspx") {
+        val arrivals: TtArrivals = client.get("ttarrivals.aspx") {
             parameter("mapid", stationId)
-        }.bodyAsText()
-        val a = Json.decodeFromString<TtArrivals>(etas)
-        return a.etas
+        }.body()
+        return arrivals.ctaTt.etas
     }
 
     @Serializable
-    data class TtArrivals(@SerialName("eta") val etas: List<Eta>)
+    private data class CtaTt(@SerialName("eta") val etas: List<Eta>)
+
+    @Serializable
+    private data class TtArrivals(@SerialName("ctatt") val ctaTt: CtaTt)
 }
