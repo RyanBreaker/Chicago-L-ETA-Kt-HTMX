@@ -1,17 +1,16 @@
 package rocks.breaker.plugins
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
-import rocks.breaker.cta.CtaClient
 import rocks.breaker.cta.Station
+import rocks.breaker.etasView
 import rocks.breaker.htmx.hxGet
-import java.time.Duration
-import java.time.LocalDateTime
 
 fun Application.configureRouting() {
-    val client = CtaClient()
     routing {
         get("/") {
             call.respondHtml {
@@ -26,7 +25,7 @@ fun Application.configureRouting() {
                         +"CTA \"L\" Tracker"
                     }
                     ul {
-                        Station.readStations().forEach {
+                        Station.allStations.forEach {
                             li {
                                 hxGet("/station/${it.id}")
                                 +it.name
@@ -36,25 +35,17 @@ fun Application.configureRouting() {
                 }
             }
         }
+
         get("/station/{id}") {
-            val etas = client.getEtas(call.parameters["id"]!!)
-            call.respondHtml {
-                body {
-                    ul {
-                        etas.forEach {
-                            li {
-                                +"${it.description} ${parseTime(it.arrivalTime)}"
-                            }
-                        }
+            try {
+                call.respondHtml {
+                    body {
+                        etasView(call.parameters["id"]!!)
                     }
                 }
+            } catch (e: Error) {
+                call.respond(HttpStatusCode.InternalServerError)
             }
         }
     }
-}
-
-private fun parseTime(dateTime: String): String {
-    val time = LocalDateTime.parse(dateTime)
-    val until = Duration.between(LocalDateTime.now(), time)
-    return "${until.toMinutes()} minutes"
 }

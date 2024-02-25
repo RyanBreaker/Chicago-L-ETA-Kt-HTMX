@@ -7,12 +7,16 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.util.logging.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-class CtaClient {
+object CtaClient {
+    private val LOGGER = KtorSimpleLogger("rocks.breaker.cta.CtaClient")
+
     private val key: String = System.getenv("CTA_APIKEY")
+
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -28,16 +32,32 @@ class CtaClient {
         }
     }
 
-    suspend fun getEtas(stationId: String): List<Eta> {
-        val arrivals: TtArrivals = client.get("ttarrivals.aspx") {
+    suspend fun getEtas(stationId: String): Result<List<Eta>> {
+        val ctaTt = client.get("ttarrivals.aspx") {
             parameter("mapid", stationId)
-        }.body()
-        return arrivals.ctaTt.etas
+        }.body<TtArrivals>().ctaTt
+
+        if (ctaTt.errorCode != "0" || ctaTt.errorMessage != null) {
+            val error = """
+                Problem getting Etas for ID: $stationId
+                * Code: ${ctaTt.errorCode}
+                * Message: ${ctaTt.errorMessage}""".trimIndent()
+            LOGGER.warn(error)
+            return Result.failure(Error(error))
+        }
+
+        return Result.success(ctaTt.etas)
     }
 
     @Serializable
-    private data class CtaTt(@SerialName("eta") val etas: List<Eta>)
+    private data class TtArrivals(
+        @SerialName("ctatt") val ctaTt: CtaTt,
+    )
 
     @Serializable
-    private data class TtArrivals(@SerialName("ctatt") val ctaTt: CtaTt)
+    private data class CtaTt(
+        @SerialName("errCd") val errorCode: String?,
+        @SerialName("errNm") val errorMessage: String?,
+        @SerialName("eta") val etas: List<Eta> = emptyList(),
+    )
 }
