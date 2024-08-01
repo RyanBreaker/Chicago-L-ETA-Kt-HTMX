@@ -1,5 +1,8 @@
 package rocks.breaker.plugins
 
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapError
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
@@ -11,7 +14,8 @@ import io.ktor.util.pipeline.*
 import kotlinx.html.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import rocks.breaker.allStops
+import rocks.breaker.cta.Client
+import rocks.breaker.cta.allStops
 
 fun Application.configureRouting() {
     val logger = LoggerFactory.getLogger("Routing")
@@ -28,6 +32,21 @@ fun Application.configureRouting() {
 
     routing {
         staticResources("/static", "static")
+
+        get("/api/arrival/{mapId}") {
+            val mapId = call.parameters["mapId"]
+            if (mapId?.toIntOrNull() == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid Map ID")
+                return@get
+            }
+            Client.getEtas(mapId)
+                .map {
+                    call.respond(it)
+                }
+                .mapError {
+                    call.respond(HttpStatusCode.InternalServerError, it.bodyAsText())
+                }
+        }
 
         get("/") {
             renderMainPage(this)

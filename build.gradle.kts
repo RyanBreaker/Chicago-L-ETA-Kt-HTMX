@@ -1,5 +1,6 @@
 val kotlin_version: String by project
 val logback_version: String by project
+val ktor_version: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -22,27 +23,32 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-server-core-jvm")
-    implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("io.ktor:ktor-server-html-builder-jvm")
-    implementation("io.ktor:ktor-server-status-pages")
-    implementation("io.ktor:ktor-server-cors")
-    implementation("io.ktor:ktor-server-default-headers")
-    implementation("io.ktor:ktor-server-forwarded-header")
-    implementation("io.ktor:ktor-server-caching-headers")
-    implementation("io.ktor:ktor-server-call-logging")
-    implementation("io.ktor:ktor-server-call-id")
-    implementation("io.ktor:ktor-server-content-negotiation")
+    implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-html-builder-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-status-pages:$ktor_version")
+    implementation("io.ktor:ktor-server-cors:$ktor_version")
+    implementation("io.ktor:ktor-server-default-headers:$ktor_version")
+    implementation("io.ktor:ktor-server-forwarded-header:$ktor_version")
+    implementation("io.ktor:ktor-server-caching-headers:$ktor_version")
+    implementation("io.ktor:ktor-server-call-logging:$ktor_version")
+    implementation("io.ktor:ktor-server-call-id:$ktor_version")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
 
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
 
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-cio")
-    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
 
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.3")
+    implementation("com.michael-bull.kotlin-result:kotlin-result:2.0.0")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
-    testImplementation("io.ktor:ktor-server-test-host-jvm")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:$ktor_version")
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
