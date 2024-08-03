@@ -1,4 +1,4 @@
-package rocks.breaker.plugins
+package rocks.breaker.cta_tracker.plugins
 
 import io.ktor.http.*
 import io.ktor.http.content.*

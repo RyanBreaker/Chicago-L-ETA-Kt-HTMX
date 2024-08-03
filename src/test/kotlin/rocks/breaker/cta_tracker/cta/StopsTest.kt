@@ -1,4 +1,4 @@
-package rocks.breaker.cta
+package rocks.breaker.cta_tracker.cta
 
 import org.junit.Test
 

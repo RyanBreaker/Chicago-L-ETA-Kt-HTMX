@@ -1,4 +1,4 @@
-package rocks.breaker.cta
+package rocks.breaker.cta_tracker.cta
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -15,6 +15,8 @@ import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object Client {
     private const val URL = "https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx"
@@ -36,7 +38,7 @@ object Client {
             url {
                 parameters.append("key", apiKey)
                 parameters.append("outputType", "json")
-                parameters.append("mapId", mapId)
+                parameters.append("mapid", mapId)
             }
         }
 
@@ -69,6 +71,7 @@ internal data class TtEta(
     val rn: String,
     val rt: String,
     val destNm: String,
+    val arrT: String,
     val isApp: String,
     val isDly: String,
 ) {
@@ -78,9 +81,14 @@ internal data class TtEta(
         rn,
         Line.apiLines[rt]!!,
         destNm,
+        LocalDateTime.parse(arrT).format(formatter),
         isApp != "0",
         isDly != "0",
     )
+
+    companion object {
+        private val formatter = DateTimeFormatter.ofPattern("h:mm a")
+    }
 }
 
 @Serializable
@@ -90,6 +98,7 @@ data class Arrival(
     val runNumber: String,
     val line: Line,
     val destinationName: String,
+    val arrivalTime: String,
     val isApproaching: Boolean,
     val isDelayed: Boolean,
 )

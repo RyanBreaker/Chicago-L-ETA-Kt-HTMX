@@ -8,11 +8,11 @@ plugins {
     id("io.ktor.plugin") version "2.3.12"
 }
 
-group = "rocks.breaker"
+group = "rocks.breaker.cta_tracker"
 version = "0.0.1"
 
 application {
-    mainClass.set("rocks.breaker.ApplicationKt")
+    mainClass.set("rocks.breaker.cta_tracker.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
